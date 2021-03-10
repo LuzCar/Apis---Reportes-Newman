@@ -1,0 +1,696 @@
+{
+	"info": {
+		"_postman_id": "03ae0fa2-5aff-4fd0-bd76-001f62617008",
+		"name": "eCommerce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Obtener Categorias",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const respuesta = pm.response.json()\r",
+							"console.log(\"Respuesta\", respuesta)\r",
+							"\r",
+							"console.log(\"Variable\", respuesta.categories[0].categories[0].code)\r",
+							"const variable = respuesta.categories[0].categories[0].code\r",
+							"\r",
+							"console.log (\"Label\", respuesta.categories[0].categories[3].label)\r",
+							"const label  = respuesta.categories[0].categories[3].label\r",
+							"\r",
+							"\r",
+							"pm.test(\"validar etiqueta dentro de la primer categoria\", function(){\r",
+							"    pm.expect(label).eq('Rentas vacacionales')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"validar la categoria 1020\", function(){\r",
+							"    pm.expect(variable).eq('1020')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validar el codigo de respuesta\", function(){\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://webapi.segundamano.mx/nga/api/v1/public/categories/insert?lang=es",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"public",
+						"categories",
+						"insert"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear una cuenta",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Crear corrreo y contraseña\r",
+							"\r",
+							"var user =  \"agente\" + (Math.floor(Math.random()*7539 + 2));\r",
+							"var email = user + \"@mailinator.com\";\r",
+							"var password = (Math.floor(Math.random()*75391 + 10000));\r",
+							"var phone = (Math.floor(Math.random()*75391 + 10000010000));\r",
+							"var user = user +  \"Lopez\";\r",
+							"\r",
+							"console.log(\"Variables: \", user,email, password)\r",
+							"\r",
+							"//setear variabes de ambiente\r",
+							"postman.setEnvironmentVariable(\"user\", user);\r",
+							"postman.setEnvironmentVariable(\"email\", email);\r",
+							"postman.setEnvironmentVariable(\"password\", password);\r",
+							"postman.setEnvironmentVariable(\"phone\", phone)\r",
+							"\r",
+							"const encodedkeys = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(email + \":\" + password));\r",
+							"postman.setEnvironmentVariable(\"encoded\", encodedkeys)\r",
+							"console.log(\"Encode: \", encodedkeys)\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic {{encoded}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"account\":{\r\n    \"email\":\"{{email}}\",\r\n    \"name\":\"{{user}}\",\r\n    \"phone\":{{phone}}\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/private/accounts?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"private",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "crear una cuenta con datos creados",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();\r",
+							"\r",
+							"\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"access_token\", response.access_token)\r",
+							"\r",
+							"let messageString = response.account.account_id\r",
+							"postman.setEnvironmentVariable(\"account_id\", messageString.split('/')[3]);\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"uuid\", response.account.uuid)\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"token_type\", response.token_type)\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic {{encod_valid}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/private/accounts?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"private",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener URLs",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filters\": [\r\n        {\r\n            \"category\": \"1000\"\r\n        },\r\n        {\r\n            \"category\": \"1020\"\r\n        },\r\n        {\r\n            \"category\": \"1040\"\r\n        },\r\n        {\r\n            \"category\": \"1060\"\r\n        },\r\n        {\r\n            \"category\": \"1080\"\r\n        },\r\n        {\r\n            \"category\": \"2000\"\r\n        },\r\n        {\r\n            \"category\": \"2020\"\r\n        },\r\n        {\r\n            \"category\": \"2040\"\r\n        },\r\n        {\r\n            \"category\": \"2120\"\r\n        },\r\n        {\r\n            \"category\": \"2080\"\r\n        },\r\n        {\r\n            \"category\": \"2060\"\r\n        },\r\n        {\r\n            \"category\": \"5000\"\r\n        },\r\n        {\r\n            \"category\": \"5040\"\r\n        },\r\n        {\r\n            \"category\": \"5080\"\r\n        },\r\n        {\r\n            \"category\": \"5020\"\r\n        },\r\n        {\r\n            \"category\": \"5060\"\r\n        },\r\n        {\r\n            \"category\": \"3000\"\r\n        },\r\n        {\r\n            \"category\": \"3040\"\r\n        },\r\n        {\r\n            \"category\": \"3020\"\r\n        },\r\n        {\r\n            \"category\": \"3060\"\r\n        },\r\n        {\r\n            \"category\": \"3100\"\r\n        },\r\n        {\r\n            \"category\": \"3080\"\r\n        },\r\n        {\r\n            \"category\": \"3120\"\r\n        },\r\n        {\r\n            \"category\": \"6000\"\r\n        },\r\n        {\r\n            \"category\": \"6020\"\r\n        },\r\n        {\r\n            \"category\": \"6040\"\r\n        },\r\n        {\r\n            \"category\": \"6060\"\r\n        },\r\n        {\r\n            \"category\": \"4000\"\r\n        },\r\n        {\r\n            \"category\": \"4020\"\r\n        },\r\n        {\r\n            \"category\": \"4040\"\r\n        },\r\n        {\r\n            \"category\": \"4060\"\r\n        },\r\n        {\r\n            \"category\": \"4100\"\r\n        },\r\n        {\r\n            \"category\": \"4080\"\r\n        },\r\n        {\r\n            \"category\": \"4120\"\r\n        },\r\n        {\r\n            \"category\": \"4140\"\r\n        },\r\n        {\r\n            \"category\": \"8000\"\r\n        },\r\n        {\r\n            \"category\": \"8020\"\r\n        },\r\n        {\r\n            \"category\": \"8040\"\r\n        },\r\n        {\r\n            \"category\": \"8060\"\r\n        },\r\n        {\r\n            \"category\": \"8080\"\r\n        },\r\n        {\r\n            \"category\": \"8100\"\r\n        },\r\n        {\r\n            \"category\": \"8120\"\r\n        },\r\n        {\r\n            \"category\": \"8140\"\r\n        },\r\n        {\r\n            \"category\": \"8160\"\r\n        },\r\n        {\r\n            \"category\": \"8180\"\r\n        },\r\n        {\r\n            \"category\": \"8200\"\r\n        },\r\n        {\r\n            \"category\": \"8220\"\r\n        },\r\n        {\r\n            \"category\": \"8240\"\r\n        },\r\n        {\r\n            \"category\": \"9000\"\r\n        },\r\n        {\r\n            \"category\": \"9020\"\r\n        },\r\n        {\r\n            \"category\": \"9040\"\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapi.segundamano.mx/urls/v1/public/ad-listing?lang=es",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"urls",
+						"v1",
+						"public",
+						"ad-listing"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ver el balance de un usuario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/private/accounts/{{account_id}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"private",
+						"accounts",
+						"{{account_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ver info del usuario no autorizado",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/private/accounts/{{account_id}}?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"private",
+						"accounts",
+						"{{account_id}}"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ver info del usuario no autorizado con token creado",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const code = pm.environment.get('encod_valid');\r",
+							"const url_base = pm.environment.get('base_url')\r",
+							"//code = 'Basic ' + code;\r",
+							"let getTokenReequest = {\r",
+							"    method: 'POST',\r",
+							"    url: 'https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es',\r",
+							"    header:{\r",
+							"        Authorization: 'Basic ' + code\r",
+							"    }\r",
+							"};\r",
+							"console.log('Request: ',getTokenReequest )\r",
+							"pm.sendRequest(getTokenReequest,(err, response) => {\r",
+							"    var response = response.json(),\r",
+							"    newAccessToken = response.access_token;\r",
+							"    console.log(\"token: \", newAccessToken)\r",
+							"    pm.environment.set('access_token2', newAccessToken)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "tag:scmcoord.com,2013:api {{access_token2}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1/private/accounts/{{account_id}}?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts",
+						"{{account_id}}"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request Cambio de telefono",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const code = pm.environment.get('encod_valid');\r",
+							"const url_base = pm.environment.get('base_url')\r",
+							"//code = 'Basic ' + code;\r",
+							"let getTokenReequest = {\r",
+							"    method: 'POST',\r",
+							"    url: 'https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es',\r",
+							"    header:{\r",
+							"        Authorization: 'Basic ' + code\r",
+							"    }\r",
+							"};\r",
+							"console.log('Request: ',getTokenReequest )\r",
+							"pm.sendRequest(getTokenReequest,(err, response) => {\r",
+							"    var response = response.json(),\r",
+							"    newAccessToken = response.access_token;\r",
+							"    console.log(\"token: \", newAccessToken)\r",
+							"    pm.environment.set('access_token2', newAccessToken)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "tag:scmcoord.com,2013:api {{access_token2}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"account\": {\r\n        \"name\": \"agente Carrillo\",\r\n        \"phone\": \"4949451269\",\r\n        \"locations\": [\r\n            {\r\n                \"code\": \"21\",\r\n                \"key\": \"region\",\r\n                \"label\": \"Nuevo León\",\r\n                \"locations\": [\r\n                    {\r\n                        \"code\": \"1003\",\r\n                        \"key\": \"municipality\",\r\n                        \"label\": \"Monterrey\"\r\n                    }\r\n                ]\r\n            }\r\n        ],\r\n        \"professional\": false,\r\n        \"phone_hidden\": false\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapi.segundamano.mx/nga/api/v1/private/accounts/11116213?lang=es",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts",
+						"11116213"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request Cambio de telefono Incorrecto",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const code = pm.environment.get('encod_valid');\r",
+							"const url_base = pm.environment.get('base_url')\r",
+							"//code = 'Basic ' + code;\r",
+							"let getTokenReequest = {\r",
+							"    method: 'POST',\r",
+							"    url: 'https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es',\r",
+							"    header:{\r",
+							"        Authorization: 'Basic ' + code\r",
+							"    }\r",
+							"};\r",
+							"console.log('Request: ',getTokenReequest )\r",
+							"pm.sendRequest(getTokenReequest,(err, response) => {\r",
+							"    var response = response.json(),\r",
+							"    newAccessToken = response.access_token;\r",
+							"    console.log(\"token: \", newAccessToken)\r",
+							"    pm.environment.set('access_token2', newAccessToken)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "tag:scmcoord.com,2013:api {{access_token2}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"account\":{\"name\":\"agente Lopez\",\"phone\":\"800\",\"locations\":[{\"code\":\"21\",\"key\":\"region\",\"label\":\"Nuevo León\",\"locations\":[{\"code\":\"1003\",\"key\":\"municipality\",\"label\":\"Monterrey\"}]}],\"professional\":false,\"phone_hidden\":false}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapi.segundamano.mx/nga/api/v1/private/accounts/11116213?lang=es",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts",
+						"11116213"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear una nueva direccion",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": " Basic MDVmNjljODUtOTVhNy00Y2RkLTlhZjgtMzZkOWMzY2UwZjk1Om1jMXg0NGRjMzE5MzgwOWNlYWFjMjQ1Zjc1OWY0MWY1ODE2OTJmZDBkYThmX3Yy",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "contact",
+							"value": "LuzMa Flores",
+							"type": "text"
+						},
+						{
+							"key": "phone",
+							"value": "8125623396",
+							"type": "text"
+						},
+						{
+							"key": "zipCode",
+							"value": "64110",
+							"type": "text"
+						},
+						{
+							"key": "exteriorInfo",
+							"value": "Safari 5623",
+							"type": "text"
+						},
+						{
+							"key": "region",
+							"value": "21",
+							"type": "text"
+						},
+						{
+							"key": "municipality",
+							"value": "1003",
+							"type": "text"
+						},
+						{
+							"key": "area",
+							"value": "95959",
+							"type": "text"
+						},
+						{
+							"key": "alias",
+							"value": "Mi direccion 2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://webapi.segundamano.mx/addresses/v1/create",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"addresses",
+						"v1",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Anuncio",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic {{encodedkeys_new}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "X-Source",
+						"value": "PHOENIX_DESKTOP",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"images\":\"8977726464.jpg\",\"category\":\"3123\",\"subject\":\"Jarrones Decorativos de varios tamaños\",\"body\":\"Jarrones Decorativos para centro de mesa\",\"price\":\"100\",\"region\":\"21\",\"municipality\":\"1003\",\"area\":\"95930\",\"phone_hidden\":\"true\",\"show_phone\":\"false\"}"
+				},
+				"url": {
+					"raw": "https://webapi.segundamano.mx/accounts/{{uuid}}/up",
+					"protocol": "https",
+					"host": [
+						"webapi",
+						"segundamano",
+						"mx"
+					],
+					"path": [
+						"accounts",
+						"{{uuid}}",
+						"up"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Alertas",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = pm.environment.get('uuid');\r",
+							"const token = pm.environment.get('access_token');\r",
+							"\r",
+							"const encodedkeys_new = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(uuid + \":\" + token));\r",
+							"pm.environment.set('encodedkeys_new',encodedkeys_new);\r",
+							"\r",
+							"console.log('encodedkeys_new' , encodedkeys_new)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic {{encodedkeys_new}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/alerts/v1/private/account/{{uuid}}//alert",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"alerts",
+						"v1",
+						"private",
+						"account",
+						"{{uuid}}",
+						"",
+						"alert"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
